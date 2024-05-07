@@ -29,12 +29,13 @@ class UserService {
         const loginRequest = validate(loginUserValidation, request);
     
         const user = await userRepository.findUserByUsername(loginRequest.username);
-    
+        
         if (!user) {
             throw new ResponseError(401, "Username or password wrong");
         }
-    
+        
         const isPasswordValid = await authService.passwordCompare(loginRequest.password, user.password);
+
         if (!isPasswordValid) {
             throw new ResponseError(401, "Username or password wrong");
         }
@@ -46,11 +47,11 @@ class UserService {
     async update(request) {
         const user = validate(updateUserValidation, request);
 
-        const totalUserInDatabase = await userRepository.countByUsername(user.username);
+        // const totalUserInDatabase = await userRepository.countByUsername(user.username);
 
-        if (totalUserInDatabase !== 1) {
-            throw new ResponseError(404, "user is not found");
-        }
+        // if (totalUserInDatabase !== 1) {
+        //     throw new ResponseError(404, "user is not found");
+        // }
 
         const data = {};
         if (user.name) {
@@ -86,6 +87,7 @@ class UserService {
 
         return await userRepository.deleteTokenUserByUsername(user.username);
     }
+    
 }
 
 export const userService = new UserService();

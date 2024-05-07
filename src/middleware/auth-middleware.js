@@ -20,13 +20,14 @@ export const authMiddleware = async (req, res, next) => {
             const decoded = await authService.decodeToken(token, process.env.JWT_SECRET_KEY);
             const user = await prismaClient.user.findUnique({
                 where: {
-                    username: decoded.user.username
+                    username: decoded.user.username,
+                    token: token
                 }
             });
 
             if (!user) {
                 res.status(401).json({
-                    errors: "Unauthorized - User not found"
+                    errors: "Unauthorized"
                 }).end();
             } else {
                 req.user = user; 

@@ -1,24 +1,32 @@
 import express from "express";
-import path from 'path';
-import { fileURLToPath } from 'url';
-import {publicRouter} from "../route/public-api.js";
 import {errorMiddleware} from "../middleware/error-midleware.js";
-import {userRouter} from "../route/api.js";
+import {publicRouter} from "../route/public-api.js";
+import {userRouter} from "../route/user-api.js";
 
-export const web = express();
-web.use(express.json());
+class Web {
 
+    constructor() {
+        this.web = express();
+        this.web.use(express.json());
+        this.web.use(express.urlencoded({ extended: true }));
+        this.setupRoutes();
+    }
 
-web.use(publicRouter);
-web.use(userRouter);
+    setupRoutes() {
+        this.web.use('/api/users', publicRouter);
+        this.web.use('/api/users', userRouter);
+        this.web.use(errorMiddleware);
+    }
 
-web.use(errorMiddleware);
+    listen(port, callback) {
+        return this.web.listen(port, callback);
+    }
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+    close(server, callback) {
+        server.close(callback);
+    }
 
-// Placeholder for React build directory
-web.use(express.static(path.join(__dirname, '../../frontend/build')));
+}
 
-web.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
-});
+export default Web;
+

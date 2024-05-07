@@ -1,10 +1,22 @@
 import express from "express";
 import userController from "../controller/user-controller.js";
 
-const publicRouter = new express.Router();
-publicRouter.post('/api/users', userController.register);
-publicRouter.post('/api/users/login', userController.login);
+class PublicRouter {
 
-export {
-    publicRouter
+    constructor() {
+        this.router = new express.Router();
+        this.setupRoutes()
+    }
+
+    setupRoutes() {
+        this.router.post('/', userController.register);
+        this.router.post('/login', userController.login);
+    }
+
+    getRouter() {
+        return this.router;
+    }
+    
 }
+
+export const publicRouter = new PublicRouter().getRouter();

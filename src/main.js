@@ -1,12 +1,15 @@
 import dotenv from 'dotenv';
 dotenv.config();
+import setupStaticFiles from './application/staticFiles.js';
 
-import { web } from "./application/web.js";
+import Web from "./application/web.js";
 import { logger } from "./application/logging.js";
 
+const port = process.env.PORT || 3000;
+const app = new Web();
 
+setupStaticFiles(app.web);
 
-const port = 3000;
-web.listen(port, () => {
+app.listen(port, () => {
     logger.info(`App use port ${port}`);
 });
