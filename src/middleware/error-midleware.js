@@ -1,22 +1,29 @@
-import { ResponseError } from "../error/response-error.js";
+import { ResponseError } from "../responseHandler/response-error.js";
 
 const errorMiddleware = async (err, req, res, next) => {
-
     if (!err) {
         next();
         return;
     }
 
+    let statusCode = 500;
+    let message = "Internal Server Error";
+
     if (err instanceof ResponseError) {
-        res.status(err.status).json({
-            errors: err.message
-        }).end();
+        statusCode = err.status;
+        message = err.message;
+    } else if (err.isJoi) { 
+        statusCode = 400;
+        message
     } else {
-        res.status(500).json({
-            errors: err.message
-        }).end();
+        message = err.message;
     }
-    
+
+    res.status(statusCode).json({
+        code: statusCode,
+        status: "fail",
+        message: message
+    }).end();
 }
 
 export {

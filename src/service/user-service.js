@@ -1,91 +1,112 @@
 import { validate } from "../validation/validation.js";
 import {
-    getUserValidation,
-    loginUserValidation,
     registerUserValidation,
     updateUserValidation
 } from "../validation/user-validation.js";
-import { ResponseError } from "../error/response-error.js";
+import { ResponseError } from "../responseHandler/response-error.js";
 import { userRepository } from "../repository/user-respository.js";
-import { authService } from "./auth-service.js";
+import { userRolesRepository } from "../repository/user-roles-respository.js";
+import { roleRepository } from "../repository/roles-repository.js";
+import { prismaClient } from "../application/database.js";
+import { securityService } from "./security-service.js";
+import UserResponse from "../entities/user/user-response.js";
 
 class UserService {
 
     async register(request) {
-        const user = validate(registerUserValidation, request);
+        const { name, username, email, password, role } = validate(registerUserValidation, request);
+
+        try {
+            const newUser = await prismaClient.$transaction(async (prismaTransaction) => {
+
+                await this.findUserByUsername(username)
+
+                const hashPassword = await securityService.passwordHash(password);
+
+                const dataUser = {
+                    name,
+                    username,
+                    email,
+                    password: hashPassword
+                }
+
+                const newUser = await userRepository.createUser(dataUser, prismaTransaction);
+
+                const { id: roleId } = await roleRepository.findByRoleName(role, prismaTransaction);
+                
+                await userRolesRepository.addUserRole(newUser.id, roleId, prismaTransaction);
+
+                return newUser;
+            });
+
+            return newUser;
+        } catch (error) {
+            if (error instanceof ResponseError) {
+                throw error;
+            } else {
+                console.log(`Registration failed: ${error.message}`)
+                throw new ResponseError(500, "Internal Server Error");
+            }
+        }
+    }
     
-        const countUser = await userRepository.countByUsername(user.username);
+
+    async update({ body, params }) {
+        const { name, username: usernameRequest, email, password } = validate(updateUserValidation, body);
+
+        const { id, username } = await this.findUserById(params.userId)
+
+        if (username !== usernameRequest) {
+            await this.findUserByUsername(usernameRequest)
+        }
+
+        let hashPassword;
+        if (password) {
+            hashPassword = await securityService.passwordHash(password);
+        }
+        
+        const dataUserUpdate = {
+            name,
+            username: usernameRequest,
+            email,
+            password: hashPassword
+        }
+        const updatedUser = await userRepository.updateUserById(id, dataUserUpdate);
+        return UserResponse.convert(updatedUser)
+    }
+
+    async getAll () {
+        const users = await userRepository.getAllUser()
     
-        if (countUser === 1) {
+        return users.map(UserResponse.convert)
+    }
+
+    async getById ({ params }) {
+        const user = await this.findUserById(params.userId)
+    
+        return UserResponse.convert(user)
+    }
+
+    async delete({ params }) {
+        const { id } = await this.findUserById(params.userId)
+        await userRepository.deleteById(id)
+        return `user berhasil dihapus`
+    }
+
+    async findUserByUsername (username) {
+        const countUser = await userRepository.countByUsername(username);
+
+        if (countUser > 0) {
             throw new ResponseError(400, "Username already exists");
         }
-    
-        user.password = await authService.passwordHash(user.password);
-    
-        return userRepository.createUser(user);
     }
-    
-    async login (request) {
-        const loginRequest = validate(loginUserValidation, request);
-    
-        const user = await userRepository.findUserByUsername(loginRequest.username);
-        
+
+    async findUserById(id) {
+        const user = await userRepository.findUserById(id)
         if (!user) {
-            throw new ResponseError(401, "Username or password wrong");
+            throw new ResponseError(404, "User not found");
         }
-        
-        const isPasswordValid = await authService.passwordCompare(loginRequest.password, user.password);
-
-        if (!isPasswordValid) {
-            throw new ResponseError(401, "Username or password wrong");
-        }
-    
-        const token = await authService.generateToken({ username: user.username, name: user.name });
-        return userRepository.updateUserToken(user.username, token);
-    }
-
-    async update(request) {
-        const user = validate(updateUserValidation, request);
-
-        // const totalUserInDatabase = await userRepository.countByUsername(user.username);
-
-        // if (totalUserInDatabase !== 1) {
-        //     throw new ResponseError(404, "user is not found");
-        // }
-
-        const data = {};
-        if (user.name) {
-            data.name = user.name;
-        }
-        if (user.password) {
-            data.password = await authService.passwordHash(user.password);
-        }
-
-        return await userRepository.updateUserByUsername(user.username, data)
-    }
-    
-    async get (username) {
-        username = validate(getUserValidation, username);
-    
-        const user = await userRepository.getUserByUsername(username);
-    
-        if (!user) {
-            throw new ResponseError(404, "user is not found");
-        }
-    
-        return user;
-    }
-    
-    async logout(username) {
-        username = validate(getUserValidation, username);
-
-        const user = await userRepository.getUserByUsername(username);
-
-        if (!user) {
-            throw new ResponseError(404, "user is not found");
-        }
-
-        return await userRepository.deleteTokenUserByUsername(user.username);
+        return user
     }
     
 }

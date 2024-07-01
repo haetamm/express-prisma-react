@@ -1,5 +1,6 @@
-# Project Expressjs | Prisma | React | Postgres
+## Project Expressjs | Prisma | React | Postgres
 
+### Laundry Rest API for [here](https://github.com/THaetami/laundry)
 
 ### 1. Project Setup | Backend
 
@@ -18,26 +19,24 @@ __Migration Table__
 npx prisma migrate dev
 ```
 
-### 2. Project Setup | Frontend
+__Database Seed__
 
 ```sh
-cd frontend
+node --experimental-modules seeders
 ```
 
-```sh
-npm install
-```
 
-```sh
-npm build
-```
-
-### 3. Run application
+### 2. Run application
 
 ```sh
 npm run start
 ```
 
+__Login with super admin:__
+```sh
+username: supmin
+password: password
+```
 
 Open [http://localhost:3000](http://localhost:3000)
 

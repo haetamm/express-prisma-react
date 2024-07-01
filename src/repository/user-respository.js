@@ -8,32 +8,103 @@ class UserRepository {
         });
     }
 
-    async createUser(userData) {
-        return prismaClient.user.create({
+    async createUser(userData, prismaTransaction) {
+        return prismaTransaction.user.create({
             data: userData,
             select: {
+                id: true,
+                name: true,
                 username: true,
-                name: true
+            }
+        });
+    }
+
+    async getAllUser() {
+        return prismaClient.user.findMany({
+            where: {
+                roleUser: {
+                    none: {
+                        role: {
+                            role:'ADMIN'
+                        }
+                    }
+                },
+                deletedAt: null
+            },
+            include: {
+                roleUser: {
+                    include: {
+                        role: true
+                    }
+                }
+            }
+        })
+    }
+
+    async updateUserById(id, data) {
+        return prismaClient.user.update({
+            where: { id },
+            data: data,
+            include: {
+                roleUser: {
+                    include: {
+                        role: true
+                    }
+                }
+            }
+        })
+    }
+
+    async findUserById(id) {
+        return prismaClient.user.findFirst({
+            where: { id, deletedAt: null },
+            include: {
+                roleUser: {
+                    include: {
+                        role: true
+                    }
+                }
+            }
+        })
+    }
+
+    async deleteById(id) {
+        return prismaClient.user.update({
+            where: { id },
+            data: { deletedAt: new Date() },
+            select: {
+                id: true,
+                username: true,
+                deletedAt: true
             }
         });
     }
 
     async findUserByUsername(username) {
-        return prismaClient.user.findUnique({
-            where: { username },
-            select: {
-                username: true,
-                password: true,
+        return prismaClient.user.findFirst({
+            where: { username, deletedAt: null },
+            include: {
+                roleUser: {
+                    include: {
+                        role: true
+                    }
+                }
             }
         });
     }
 
-    async getUserByUsername(username) {
+    async findUserLogin(id, token) {
         return prismaClient.user.findUnique({
-            where: { username },
-            select: {
-                username: true,
-                name: true
+            where: {
+                id,
+                token
+            },
+            include: {
+                roleUser: {
+                    include: {
+                        role: true
+                    }
+                }
             }
         });
     }
@@ -48,29 +119,12 @@ class UserRepository {
         });
     }
 
-    async deleteTokenUserByUsername(username) {
+    async deleteTokenUserById(id) {
         return prismaClient.user.update({
-            where: {
-                username: username
-            },
-            data: {
-                token: null
-            },
+            where: { id },
+            data: { token: null },
             select: {
-                username: true
-            }
-        })
-    }
-
-    async updateUserByUsername(username, data) {
-        return prismaClient.user.update({
-            where: {
-                username: username
-            },
-            data: data,
-            select: {
-                username: true,
-                name: true
+                name: true,
             }
         })
     }

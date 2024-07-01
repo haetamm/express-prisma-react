@@ -1,42 +1,34 @@
-import { prismaClient } from "../application/database.js";
-import { authService } from "../service/auth-service.js";
+import { userRepository } from "../repository/user-respository.js";
+import { ResponseJson } from "../responseHandler/response-json.js";
+import { securityService } from '../service/security-service.js';
 
 export const authMiddleware = async (req, res, next) => {
     const authHeader  = req.get('Authorization');
     if (!authHeader) {
-        res.status(401).json({
-            errors: "Unauthorized -  No token provided"
-        }).end();
+        const response = new ResponseJson(401, "Unauthorized -  No token provided")
+        res.status(401).json(response).end();
     } else {
         const token = authHeader.split(' ')[1]; // Mengasumsikan format 'Bearer token_here'
         if (!token) {
-            res.status(401).json({
-                errors: "Unauthorized - Malformed token"
-            }).end();
+            const response = new ResponseJson(401, "Unauthorized - Malformed token")
+            res.status(401).json(response).end();
             return;
         }
 
         try {
-            const decoded = await authService.decodeToken(token, process.env.JWT_SECRET_KEY);
-            const user = await prismaClient.user.findUnique({
-                where: {
-                    username: decoded.user.username,
-                    token: token
-                }
-            });
+            const decoded = await securityService.decodeToken(token, process.env.JWT_SECRET_KEY);
+            const user = await userRepository.findUserLogin(decoded.userId, token);
 
             if (!user) {
-                res.status(401).json({
-                    errors: "Unauthorized"
-                }).end();
+                const response = new ResponseJson(401, "Unauthorized")
+                res.status(401).json(response).end();
             } else {
                 req.user = user; 
                 next();
             }
         } catch (err) {
-            res.status(401).json({
-                errors: "Unauthorized - Invalid token"
-            }).end();
+            const response = new ResponseJson(401, "Unauthorized - Invalid token")
+            res.status(401).json(response).end();
         }
     }
 }

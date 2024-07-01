@@ -1,12 +1,12 @@
 import { ResponseJson } from "../responseHandler/response-json.js";
 import { ResponseSuccess } from "../responseHandler/response-success.js";
-import { userService } from "../service/user-service.js";
+import { productService } from "../service/product-service.js"
 
-class UserController {
+class ProductController {
 
-    async register (req, res, next) {
+    async register(req, res, next) {
         try {
-            const result = await userService.register(req.body);
+            const result = await productService.register(req.body);
             const response = new ResponseSuccess(201, result);
             res.status(201).json(response);
         } catch (e) {
@@ -14,9 +14,9 @@ class UserController {
         }
     }
     
-    async getAll (req, res, next) {
+    async getAll(req, res, next) {
         try {
-            const result = await userService.getAll();
+            const result = await productService.getAll();
             const response = new ResponseSuccess(200, result);
             res.status(200).json(response);
         } catch (e) {
@@ -24,9 +24,9 @@ class UserController {
         }
     }
 
-    async getById (req, res, next) {
+    async getById(req, res, next) {
         try {
-            const result = await userService.getById(req);
+            const result = await productService.getById(req);
             const response = new ResponseSuccess(200, result);
             res.status(200).json(response);
         } catch (e) {
@@ -36,7 +36,7 @@ class UserController {
     
     async update(req, res, next) {
         try {
-            const result = await userService.update(req);
+            const result = await productService.update(req);
             const response = new ResponseJson(200, result);
             res.status(200).json(response);
         } catch (e) {
@@ -46,7 +46,7 @@ class UserController {
     
     async delete(req, res, next) {
         try {
-            const result = await userService.delete(req);
+            const result = await productService.delete(req);
             const response = new ResponseSuccess(204, result);
             res.status(204).json(response);
         } catch (e) {
@@ -55,4 +55,4 @@ class UserController {
     }
 }
 
-export default new UserController();
+export default new ProductController();

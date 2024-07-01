@@ -1,6 +1,7 @@
 import express from "express";
 import userController from "../controller/user-controller.js";
-import {authMiddleware} from "../middleware/auth-middleware.js";
+import { authMiddleware } from "../middleware/auth-middleware.js";
+import { adminMiddleware } from "../middleware/admin-middleware.js";
 
 class UserRouter{
 
@@ -10,9 +11,11 @@ class UserRouter{
     }
 
     setupRoutes() {
-        this.router.get('/current', authMiddleware, userController.get);
-        this.router.patch('/current', authMiddleware, userController.update);
-        this.router.delete('/logout', authMiddleware, userController.logout);
+        this.router.post('/users', authMiddleware, adminMiddleware, userController.register)
+        this.router.get('/users', authMiddleware, adminMiddleware, userController.getAll);
+        this.router.get('/users/:userId', authMiddleware, adminMiddleware, userController.getById);
+        this.router.put('/users/:userId', authMiddleware, adminMiddleware, userController.update);
+        this.router.delete('/users/:userId', authMiddleware, adminMiddleware, userController.delete);
     }
 
     getRouter() {

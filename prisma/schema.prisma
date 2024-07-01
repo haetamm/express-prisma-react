@@ -1,50 +1,103 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("POSTGRES_DATABASE_URL")
+  // provider = "mysql"
+  // url      = env("MYSQL_DATABASE_URL")
+}
+
+enum UserRoleEnum {
+  ADMIN
+  EMPLOYEE
+}
+
+model Role {
+  id        String       @id @default(uuid())
+  role      UserRoleEnum @unique
+  roleUsers RoleUser[]
+
+  @@map("roles")
 }
 
 model User {
-  username String    @id @db.VarChar(100)
-  password String    @db.VarChar(100)
-  name     String    @db.VarChar(100)
-  token    String?   @db.Text
-  contacts Contact[]
+  id        String     @id @default(uuid())
+  name      String     @db.VarChar(100)
+  email     String     @db.VarChar(30)
+  username  String     @unique @db.VarChar(100)
+  password  String     @db.VarChar(100)
+  token     String?    @db.Text
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  deletedAt DateTime?  @map("deleted_at")
+  roleUser  RoleUser[]
+  bill      Bill[]
 
   @@map("users")
 }
 
-model Contact {
-  id         Int       @id @default(autoincrement())
-  first_name String    @db.VarChar(100)
-  last_name  String    @db.VarChar(100)
-  email      String?   @db.VarChar(200)
-  phone      String?   @db.VarChar(200)
-  username   String    @db.VarChar(100)
-  user       User      @relation(fields: [username], references: [username])
-  addressed  Address[]
+model RoleUser {
+  id     Int    @id @default(autoincrement())
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
 
-  @@map("contacts")
+  @@unique([userId, roleId])
+  @@map("user_roles")
 }
 
-model Address {
-  id          Int     @id @default(autoincrement())
-  street      String? @db.VarChar(255)
-  city        String? @db.VarChar(100)
-  province    String? @db.VarChar(100)
-  country     String  @db.VarChar(100)
-  postal_code String  @db.VarChar(10)
-  contact_id  Int
-  contact     Contact @relation(fields: [contact_id], references: [id])
+model Product {
+  id          String       @id @default(uuid())
+  name        String       @db.VarChar(100)
+  price       Int
+  type        String       @db.VarChar(10)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
+  billDetails BillDetail[]
 
-  @@map("addresses")
+  @@map("products")
+}
+
+model Customer {
+  id          String    @id @default(uuid())
+  name        String    @db.VarChar(100)
+  phoneNumber String    @db.VarChar(20)
+  address     String    @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  bill        Bill[]
+
+  @@map("customers")
+}
+
+model Bill {
+  id         String       @id @default(uuid())
+  billDate   DateTime     @default(now()) @map("created_at")
+  userId     String
+  customerId String
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+  user       User         @relation(fields: [userId], references: [id])
+  customer   Customer     @relation(fields: [customerId], references: [id])
+  billDetail BillDetail[]
+
+  @@map("bills")
+}
+
+model BillDetail {
+  id        String   @id @default(uuid())
+  billId    String
+  productId String
+  qty       Int
+  price     Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  bill      Bill     @relation(fields: [billId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("bill_details")
 }

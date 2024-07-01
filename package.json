@@ -1,7 +1,7 @@
 {
-  "name": "prisma-api",
+  "name": "laundry-rest-api",
   "version": "1.0.0",
-  "description": "rest api prisma",
+  "description": "laundry rest api",
   "main": "src/main.js",
   "scripts": {
     "start": "node src/main.js",
@@ -13,11 +13,11 @@
       "^.+\\.[t|j]sx?$": "babel-jest"
     }
   },
-  "author": "saha?",
+  "author": "cie ganteng",
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@prisma/client": "^5.13.0",
+    "@prisma/client": "^5.16.1",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
