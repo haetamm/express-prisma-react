@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { ResponseError } from '../responseHandler/response-error.js';
+import { ResponseError } from '../entities/response-error.js';
 
 
 const { hash, compare } = bcrypt;
@@ -20,7 +20,7 @@ class SecurityService {
     async generateToken({ userId, role }) {
         try {
             const secretKey = process.env.JWT_SECRET_KEY;
-            const expiresIn = parseInt(process.env.JWT_EXPIRES_IN); // Menggunakan format detik
+            const expiresIn = parseInt(process.env.JWT_EXPIRES_IN); 
             const issuedAt = Math.floor(Date.now() / 1000);
             const expirationTime = issuedAt + expiresIn;
             
@@ -35,10 +35,9 @@ class SecurityService {
     
             const token = sign(tokenPayload, secretKey);
             return token;
-
         } catch (err) {
-            console.error("Generated Token failed: ", err);
-            throw new ResponseError(500, "Generated Token failed:");
+            console.log("Generated Token failed: ", err);
+            throw new ResponseError(500, "Internal Server Error");
         }
     }
 
@@ -49,7 +48,7 @@ class SecurityService {
             return credential;
         } catch (err) {
             console.error("Token verification failed:", err);
-            throw new ResponseError(401, "Invalid Token");
+            throw new ResponseError(401, "Unauthorized - Invalid token");
         }
     }
 }

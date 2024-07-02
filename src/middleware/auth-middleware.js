@@ -1,5 +1,5 @@
 import { userRepository } from "../repository/user-respository.js";
-import { ResponseJson } from "../responseHandler/response-json.js";
+import { ResponseJson } from "../entities/response-json.js";
 import { securityService } from '../service/security-service.js';
 
 export const authMiddleware = async (req, res, next) => {
@@ -20,7 +20,7 @@ export const authMiddleware = async (req, res, next) => {
             const user = await userRepository.findUserLogin(decoded.userId, token);
 
             if (!user) {
-                const response = new ResponseJson(401, "Unauthorized")
+                const response = new ResponseJson(401, "Unauthorized - Not authenticated")
                 res.status(401).json(response).end();
             } else {
                 req.user = user; 

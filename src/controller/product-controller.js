@@ -1,12 +1,12 @@
-import { ResponseJson } from "../responseHandler/response-json.js";
-import { ResponseSuccess } from "../responseHandler/response-success.js";
+import { ResponseJson } from "../entities/response-json.js";
+import { ResponseSuccess } from "../entities/response-success.js";
 import { productService } from "../service/product-service.js"
 
 class ProductController {
 
     async register(req, res, next) {
         try {
-            const result = await productService.register(req.body);
+            const result = await productService.register(req);
             const response = new ResponseSuccess(201, result);
             res.status(201).json(response);
         } catch (e) {

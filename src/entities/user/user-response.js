@@ -5,9 +5,9 @@ class UserResponse {
             name,
             email,
             username,
+            role: roleUser.length > 0 ? roleUser[0].role.role : null,
             createdAt,
             updatedAt,
-            role: roleUser.length > 0 ? roleUser[0].role.role : null,
         };
     }
 }

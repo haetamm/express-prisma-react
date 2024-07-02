@@ -1,11 +1,11 @@
-import { ResponseSuccess } from "../responseHandler/response-success.js";
+import { ResponseSuccess } from "../entities/response-success.js";
 import { authService } from "../service/auth-service.js";
 
 class AuthController {
 
     async login(req, res, next) {
         try {
-            const result = await authService.login(req.body);
+            const result = await authService.login(req);
             const response = new ResponseSuccess(200, result);
             res.status(200).json(response);
         } catch (e) {
@@ -15,7 +15,7 @@ class AuthController {
     
     async logout (req, res, next) {
         try {
-            const result = await authService.logout(req.user.id);
+            const result = await authService.logout(req);
             const response = new ResponseSuccess(200, result);
             res.status(200).json(response);
         } catch (e) {

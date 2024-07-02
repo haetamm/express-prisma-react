@@ -1,8 +1,8 @@
-import { ResponseJson } from "../responseHandler/response-json.js";
+import { ResponseJson } from "../entities/response-json.js";
 
 export const adminMiddleware = (req, res, next) => {
     if (!req.user) {
-        const response = new ResponseJson(401, "Unauthorized - User not authenticated");
+        const response = new ResponseJson(401, "Unauthorized - Not authenticated");
         return res.status(401).json(response).end();
     }
 

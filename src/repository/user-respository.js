@@ -72,11 +72,6 @@ class UserRepository {
         return prismaClient.user.update({
             where: { id },
             data: { deletedAt: new Date() },
-            select: {
-                id: true,
-                username: true,
-                deletedAt: true
-            }
         });
     }
 
@@ -94,10 +89,11 @@ class UserRepository {
     }
 
     async findUserLogin(id, token) {
-        return prismaClient.user.findUnique({
+        return prismaClient.user.findFirst({
             where: {
                 id,
-                token
+                token,
+                deletedAt: null
             },
             include: {
                 roleUser: {

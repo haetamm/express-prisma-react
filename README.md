@@ -1,4 +1,4 @@
-## Project Expressjs | Prisma | React | Postgres
+## Project Expressjs | Prisma | Postgres
 
 ### Laundry Rest API for [here](https://github.com/THaetami/laundry)
 
@@ -37,7 +37,5 @@ __Login with super admin:__
 username: supmin
 password: password
 ```
-
-Open [http://localhost:3000](http://localhost:3000)
 
 

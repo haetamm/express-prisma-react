@@ -1,13 +1,13 @@
 import { validate } from "../validation/validation.js";
-import { ResponseError } from "../responseHandler/response-error.js";
+import { ResponseError } from "../entities/response-error.js";
 import { productValidation } from "../validation/product-validation.js";
 import { productRepository } from "../repository/product-respository.js";
 import ProductResponse from "../entities/product/product-response.js";
 
 class ProductService {
 
-    async register(request) {
-        const productRequest = validate(productValidation, request);
+    async register({ body }) {
+        const productRequest = validate(productValidation, body);
         try {
             const newProduct = await productRepository.createProduct(productRequest);
             return ProductResponse.convert(newProduct);
@@ -26,26 +26,24 @@ class ProductService {
 
     async getAll () {
         const products = await productRepository.getAllProduct()
-    
         return products.map(ProductResponse.convert)
     }
 
     async getById ({ params }) {
         const product = await this.findProductById(params.productId)
-    
         return ProductResponse.convert(product)
     }
 
     async delete({ params }) {
         const { id } = await this.findProductById(params.productId)
-        await productRepository.deleteById(id)
-        return `product berhasil dihapus`
+        const { name } = await productRepository.deleteById(id)
+        return `product ${name} berhasil dihapus`
     }
 
     async findProductById(id) {
         const product = await productRepository.findProductById(id)
         if (!product) {
-            throw new ResponseError(404, "Product not found");
+            throw new ResponseError(404, `\"product\" not found`);
         }
         return product
     }

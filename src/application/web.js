@@ -4,6 +4,7 @@ import { authRouter } from "../route/auth-api.js";
 import { userRouter } from "../route/user-api.js";
 import { productRoute } from "../route/product-api.js";
 import { customerRoute } from "../route/customer-api.js";
+import { billRoute } from "../route/bill-api.js";
 
 class Web {
 
@@ -19,6 +20,7 @@ class Web {
         this.web.use('/api/v1', userRouter);
         this.web.use('/api/v1', productRoute);
         this.web.use('/api/v1', customerRoute);
+        this.web.use('/api/v1', billRoute);
         this.web.use(errorMiddleware);
     }
 

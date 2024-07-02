@@ -33,6 +33,12 @@ class ProductRepository {
             data: { deletedAt: new Date() },
         });
     }
+
+    async findProductTransactionById(id, prismaTransaction) {
+        return prismaTransaction.product.findFirst({
+            where: { id, deletedAt: null }
+        })
+    }
     
 }
 

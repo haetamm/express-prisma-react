@@ -33,6 +33,12 @@ class CustomerRepository {
             data: { deletedAt: new Date() },
         });
     }
+
+    async findCustomerTransactionById(id, prismaTransaction) {
+        return prismaTransaction.customer.findFirst({
+            where: { id, deletedAt: null }
+        })
+    }
     
 }
 

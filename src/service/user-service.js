@@ -1,9 +1,6 @@
 import { validate } from "../validation/validation.js";
-import {
-    registerUserValidation,
-    updateUserValidation
-} from "../validation/user-validation.js";
-import { ResponseError } from "../responseHandler/response-error.js";
+import { registerUserValidation, updateUserValidation } from "../validation/user-validation.js";
+import { ResponseError } from "../entities/response-error.js";
 import { userRepository } from "../repository/user-respository.js";
 import { userRolesRepository } from "../repository/user-roles-respository.js";
 import { roleRepository } from "../repository/roles-repository.js";
@@ -13,14 +10,11 @@ import UserResponse from "../entities/user/user-response.js";
 
 class UserService {
 
-    async register(request) {
-        const { name, username, email, password, role } = validate(registerUserValidation, request);
-
+    async register({ body }) {
+        const { name, username, email, password, role } = validate(registerUserValidation, body);
         try {
             const newUser = await prismaClient.$transaction(async (prismaTransaction) => {
-
                 await this.findUserByUsername(username)
-
                 const hashPassword = await securityService.passwordHash(password);
 
                 const dataUser = {
@@ -31,11 +25,8 @@ class UserService {
                 }
 
                 const newUser = await userRepository.createUser(dataUser, prismaTransaction);
-
                 const { id: roleId } = await roleRepository.findByRoleName(role, prismaTransaction);
-                
                 await userRolesRepository.addUserRole(newUser.id, roleId, prismaTransaction);
-
                 return newUser;
             });
 
@@ -53,9 +44,7 @@ class UserService {
 
     async update({ body, params }) {
         const { name, username: usernameRequest, email, password } = validate(updateUserValidation, body);
-
         const { id, username } = await this.findUserById(params.userId)
-
         if (username !== usernameRequest) {
             await this.findUserByUsername(usernameRequest)
         }
@@ -77,34 +66,31 @@ class UserService {
 
     async getAll () {
         const users = await userRepository.getAllUser()
-    
         return users.map(UserResponse.convert)
     }
 
     async getById ({ params }) {
         const user = await this.findUserById(params.userId)
-    
         return UserResponse.convert(user)
     }
 
     async delete({ params }) {
         const { id } = await this.findUserById(params.userId)
-        await userRepository.deleteById(id)
-        return `user berhasil dihapus`
+        const { name } = await userRepository.deleteById(id)
+        return `user ${name} berhasil dihapus`
     }
 
-    async findUserByUsername (username) {
+    async findUserByUsername(username) {
         const countUser = await userRepository.countByUsername(username);
-
         if (countUser > 0) {
-            throw new ResponseError(400, "Username already exists");
+            throw new ResponseError(400, `\"username\" already exists`);
         }
     }
 
     async findUserById(id) {
         const user = await userRepository.findUserById(id)
         if (!user) {
-            throw new ResponseError(404, "User not found");
+            throw new ResponseError(404, `\"user\" not found`);
         }
         return user
     }
