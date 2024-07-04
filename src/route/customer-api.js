@@ -13,7 +13,7 @@ class CustomerRoute{
         this.router.post('/customers', authMiddleware, customerController.register);
         this.router.get('/customers', authMiddleware, customerController.getAll);
         this.router.get('/customers/:customerId', authMiddleware, customerController.getById);
-        this.router.put('/customers/:customerId', authMiddleware, customerController.update);
+        this.router.put('/customers', authMiddleware, customerController.update);
         this.router.delete('/customers/:customerId', authMiddleware, customerController.delete);
     }
 

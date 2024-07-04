@@ -13,7 +13,7 @@ class ProductRoute{
         this.router.post('/products', authMiddleware, productController.register)
         this.router.get('/products', authMiddleware, productController.getAll);
         this.router.get('/products/:productId', authMiddleware, productController.getById);
-        this.router.put('/products/:productId', authMiddleware, productController.update);
+        this.router.put('/products', authMiddleware, productController.update);
         this.router.delete('/products/:productId', authMiddleware, productController.delete);
     }
 

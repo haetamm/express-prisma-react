@@ -42,9 +42,9 @@ class UserService {
     }
     
 
-    async update({ body, params }) {
-        const { name, username: usernameRequest, email, password } = validate(updateUserValidation, body);
-        const { id, username } = await this.findUserById(params.userId)
+    async update({ body }) {
+        const { id: userId, name, username: usernameRequest, email, password } = validate(updateUserValidation, body);
+        const { id, username } = await this.findUserById(userId)
         if (username !== usernameRequest) {
             await this.findUserByUsername(usernameRequest)
         }
@@ -60,6 +60,7 @@ class UserService {
             email,
             password: hashPassword
         }
+        console.log(dataUserUpdate)
         const updatedUser = await userRepository.updateUserById(id, dataUserUpdate);
         return UserResponse.convert(updatedUser)
     }

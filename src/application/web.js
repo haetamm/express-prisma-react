@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { errorMiddleware } from "../middleware/error-midleware.js";
 import { authRouter } from "../route/auth-api.js";
 import { userRouter } from "../route/user-api.js";
@@ -10,6 +11,7 @@ class Web {
 
     constructor() {
         this.web = express();
+        this.web.use(cors());
         this.web.use(express.json());
         this.web.use(express.urlencoded({ extended: true }));
         this.setupRoutes();

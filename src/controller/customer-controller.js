@@ -37,7 +37,7 @@ class CustomerController {
     async update(req, res, next) {
         try {
             const result = await customerService.update(req);
-            const response = new ResponseJson(200, result);
+            const response = new ResponseSuccess(200, result);
             res.status(200).json(response);
         } catch (e) {
             next(e);

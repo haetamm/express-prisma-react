@@ -14,7 +14,7 @@ class UserRouter{
         this.router.post('/users', authMiddleware, adminMiddleware, userController.register)
         this.router.get('/users', authMiddleware, adminMiddleware, userController.getAll);
         this.router.get('/users/:userId', authMiddleware, adminMiddleware, userController.getById);
-        this.router.put('/users/:userId', authMiddleware, adminMiddleware, userController.update);
+        this.router.put('/users', authMiddleware, adminMiddleware, userController.update);
         this.router.delete('/users/:userId', authMiddleware, adminMiddleware, userController.delete);
     }
 

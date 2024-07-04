@@ -1,13 +1,13 @@
 import { validate } from "../validation/validation.js";
 import { ResponseError } from "../entities/response-error.js";
-import { customerValidation } from "../validation/customer-validation.js";
+import { registerCustomerValidation, updateCustomerValidation } from "../validation/customer-validation.js";
 import CustomerResponse from "../entities/customer/customer-response.js";
 import { customerRepository } from "../repository/customer-respository.js";
 
 class CustomerService {
 
     async register({ body }) {
-        const customerRequest = validate(customerValidation, body);
+        const customerRequest = validate(registerCustomerValidation, body);
         try {
             const newCustomer = await customerRepository.createCustomer(customerRequest);
             return CustomerResponse.convert(newCustomer);
@@ -18,9 +18,9 @@ class CustomerService {
     }
     
 
-    async update({ body, params }) {
-        const requestCustomer = validate(customerValidation, body);
-        const { id } = await this.findCustomerById(params.customerId)
+    async update({ body }) {
+        const requestCustomer = validate(updateCustomerValidation, body);
+        const { id } = await this.findCustomerById(requestCustomer.id)
         const updatedCustomer = await customerRepository.updateCustomerById(id, requestCustomer);
         return CustomerResponse.convert(updatedCustomer)
     }

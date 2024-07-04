@@ -9,7 +9,7 @@ class BillResponse {
             billDate,
             customer: CustomerResponse.convert(customer),
             user: UserResponse.convert(user),
-            billDetail: billDetail.map(detail => ({
+            billDetails: billDetail.map(detail => ({
                 id: detail.id,
                 product: ProductResponse.convert(detail.product),
                 qty: detail.qty,

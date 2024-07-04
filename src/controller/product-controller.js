@@ -1,4 +1,3 @@
-import { ResponseJson } from "../entities/response-json.js";
 import { ResponseSuccess } from "../entities/response-success.js";
 import { productService } from "../service/product-service.js"
 
@@ -37,7 +36,7 @@ class ProductController {
     async update(req, res, next) {
         try {
             const result = await productService.update(req);
-            const response = new ResponseJson(200, result);
+            const response = new ResponseSuccess(200, result);
             res.status(200).json(response);
         } catch (e) {
             next(e);

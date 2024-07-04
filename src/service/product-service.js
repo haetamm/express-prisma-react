@@ -1,13 +1,13 @@
 import { validate } from "../validation/validation.js";
 import { ResponseError } from "../entities/response-error.js";
-import { productValidation } from "../validation/product-validation.js";
+import { registerProductValidation, updateProductValidation } from "../validation/product-validation.js";
 import { productRepository } from "../repository/product-respository.js";
 import ProductResponse from "../entities/product/product-response.js";
 
 class ProductService {
 
     async register({ body }) {
-        const productRequest = validate(productValidation, body);
+        const productRequest = validate(registerProductValidation, body);
         try {
             const newProduct = await productRepository.createProduct(productRequest);
             return ProductResponse.convert(newProduct);
@@ -17,9 +17,9 @@ class ProductService {
         }
     }
     
-    async update({ body, params }) {
-        const requestProduct = validate(productValidation, body);
-        const { id } = await this.findProductById(params.productId)
+    async update({ body }) {
+        const requestProduct = validate(updateProductValidation, body);
+        const { id } = await this.findProductById(requestProduct.id)
         const updatedProduct = await productRepository.updateProductById(id, requestProduct);
         return ProductResponse.convert(updatedProduct)
     }

@@ -7,8 +7,6 @@ import { logger } from "./application/logging.js";
 const port = process.env.PORT || 8888;
 const app = new Web();
 
-
-
 app.listen(port, () => {
     logger.info(`App use port ${port}`);
 });
